@@ -5,7 +5,7 @@ import requests
 UPLOAD_URL = "http://localhost:3000/questao/foto"
 
 # Pasta local que contém os arquivos
-LOCAL_FOLDER = "./fotos"
+LOCAL_FOLDER = "./fotoss"  # Pasta local que contém os arquivos
 FILES_WITH_ERROR_FILE = "./files_with_error.txt"  # Arquivo para salvar os nomes dos arquivos com erro
 
 # Lista para armazenar os nomes dos arquivos que tiveram erro durante o upload
@@ -24,13 +24,18 @@ def upload_file_to_api(file_name, file_path):
             }
             # Envia a requisição PATCH
             response = requests.patch(UPLOAD_URL, files=files, data=data)
+
+            print(response.status_code)
             
             # Verifica a resposta
             if response.status_code == 200:
                 print(f"Arquivo '{file_name}' enviado com sucesso para a API.")
+            elif response.status_code == 409:
+                print(f"Arquivo '{file_name}' já existe na API.")
             else:
                 print(f"Falha ao enviar '{file_name}'. Código de status: {response.status_code}, Resposta: {response.text}")
                 files_with_error.append(file_name)  # Adiciona o nome do arquivo à lista de erros
+                print(files_with_error)
     except Exception as e:
         print(f"Erro ao enviar '{file_name}': {e}")
         files_with_error.append(file_name)
@@ -56,12 +61,14 @@ def main():
 
     # Salva os nomes dos arquivos que tiveram erro em um arquivo de texto
     if files_with_error:
-        with open(FILES_WITH_ERROR_FILE, 'w') as file:
+        with open(FILES_WITH_ERROR_FILE, 'w', encoding= 'utf-8') as file:
             for line in files_with_error:
                 file.write(line + '\n')
         print(f"Arquivos com erro salvos com sucesso em: {FILES_WITH_ERROR_FILE}")
     else:
         print("Todos os arquivos foram enviados com sucesso.")
 
+
 if __name__ == '__main__':
     main()
+
